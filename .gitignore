@@ -1,0 +1,48 @@
+# Entorno virtual de Python
+venv/
+ENV/
+env/
+.venv/
+
+# Archivos de configuración de tu IDE/editor (Visual Studio Code, PyCharm, etc.)
+.vscode/
+.idea/
+
+# Archivos de bases de datos temporales o de SQLite
+*.sqlite3
+*.db
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de log y caché
+*.log
+*.cache
+*.bak
+*.tmp
+
+# Archivos sensibles
+.env
+.env.*  # Si usas varios entornos
+
+# Configuración local de tu sistema operativo
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Archivos de pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos de test o cobertura (si usás pytest u otros)
+htmlcov/
+.tox/
+.coverage
+coverage.xml
+.pytest_cache/
+
+# PyInstaller
+dist/
+build/
+*.spec
