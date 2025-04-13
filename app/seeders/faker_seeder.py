@@ -51,7 +51,7 @@ def seed_data():
                 apellido=faker.last_name(),
                 telefono=faker.phone_number(),
                 gmail=faker.email(),
-                contrasena="admin123",
+                contrasena=generate_password_hash("admin123"),
                 estado="activo",
                 rol_id=rol_admin.id
             )
@@ -66,7 +66,7 @@ def seed_data():
                 telefono=faker.phone_number(),
                 nit=str(faker.random_number(digits=8)),
                 gmail=faker.email(),
-                contrasena="cliente123"
+                contrasena=generate_password_hash("cliente123")
             )
             db.session.add(cliente)
             clientes.append(cliente)

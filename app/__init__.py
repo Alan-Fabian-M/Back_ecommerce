@@ -3,13 +3,17 @@ from flask_sqlalchemy import SQLAlchemy
 from .config import Config
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_cors import CORS
+
 
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(Config)
     
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:4200"}})
     db.init_app(app)
     jwt = JWTManager(app)
     migrate = Migrate(app, db)
