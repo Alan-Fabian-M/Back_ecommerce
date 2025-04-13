@@ -18,6 +18,7 @@ def rol_to_dict(rol):
 
 @rol_bp.route('/roles', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_roles():
     try:
         roles = Rol.query.all()
@@ -29,6 +30,7 @@ def get_roles():
 
 @rol_bp.route('/roles/<int:id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
@@ -40,6 +42,7 @@ def get_rol(id):
 
 @rol_bp.route('/roles', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def add_rol():
     try:
         # Load the data into the schema
@@ -56,6 +59,7 @@ def add_rol():
 
 @rol_bp.route('/roles/<int:id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
@@ -74,6 +78,7 @@ def update_rol(id):
 
 @rol_bp.route('/roles/<int:id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
@@ -86,6 +91,7 @@ def delete_rol(id):
 
 @rol_bp.route('/roles/<string:nombre>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_rol_por_nombre(nombre):
     try:
         # Búsqueda parcial, no case-sensitive

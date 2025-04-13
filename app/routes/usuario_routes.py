@@ -22,6 +22,7 @@ def usuario_to_dict(usuario):
 
 @usuario_bp.route('/usuarios', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_usuarios():
     try:
         usuarios = Usuario.query.all()
@@ -32,6 +33,7 @@ def get_usuarios():
 
 @usuario_bp.route('/usuarios/<string:nombre>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_usuario_por_nombre(nombre):
     try:
         # Búsqueda parcial, no case-sensitive
@@ -47,6 +49,7 @@ def get_usuario_por_nombre(nombre):
 
 @usuario_bp.route('/usuarios/rol/<string:nombre_rol>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_usuarios_por_nombre_rol(nombre_rol):
     try:
         # Buscar roles cuyo nombre coincida parcialmente con el texto recibido
@@ -73,6 +76,7 @@ def get_usuarios_por_nombre_rol(nombre_rol):
 
 @usuario_bp.route('/usuarios/<int:id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_usuario(id):
     try:
         usuario = Usuario.query.get_or_404(id)
@@ -103,6 +107,7 @@ def get_usuario(id):
 
 @usuario_bp.route('/usuarios', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def add_usuario():
     try:
         data = request.json
@@ -132,6 +137,7 @@ def add_usuario():
 
 @usuario_bp.route('/usuarios/<int:id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_usuario(id):
     try:
         usuario = Usuario.query.get_or_404(id)
@@ -152,6 +158,7 @@ def update_usuario(id):
 
 @usuario_bp.route('/usuarios/<int:id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_usuario(id):
     try:
         usuario = Usuario.query.get_or_404(id)

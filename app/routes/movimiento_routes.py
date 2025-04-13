@@ -11,6 +11,7 @@ movimientos_schema = MovimientoSchema(many=True)
 # Obtener todos los movimientos
 @movimiento_bp.route('/movimientos', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_movimientos():
     try:
         movimientos = Movimiento.query.all()
@@ -21,6 +22,7 @@ def get_movimientos():
 # Obtener un movimiento por ID
 @movimiento_bp.route('/movimientos/<int:id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_movimiento(id):
     try:
         movimiento = Movimiento.query.get_or_404(id)
@@ -31,6 +33,7 @@ def get_movimiento(id):
 # Crear un nuevo movimiento
 @movimiento_bp.route('/movimientos', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def add_movimiento():
     try:
         data = movimiento_schema.load(request.json)  # Cargar los datos del cuerpo de la solicitud
@@ -44,6 +47,7 @@ def add_movimiento():
 # Actualizar un movimiento existente
 @movimiento_bp.route('/movimientos/<int:id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_movimiento(id):
     try:
         movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
@@ -58,6 +62,7 @@ def update_movimiento(id):
 # Eliminar un movimiento
 @movimiento_bp.route('/movimientos/<int:id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_movimiento(id):
     try:
         movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID

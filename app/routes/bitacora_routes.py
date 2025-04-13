@@ -9,6 +9,7 @@ bitacoras_schema = BitacoraSchema(many=True)
 
 # Obtener todas las bitácoras
 @bitacora_bp.route('/bitacoras', methods=['GET'])
+@cross_origin()
 def get_bitacoras():
     try:
         bitacoras = Bitacora.query.all()
@@ -18,6 +19,7 @@ def get_bitacoras():
 
 # Obtener una bitácora por ID
 @bitacora_bp.route('/bitacoras/<int:id>', methods=['GET'])
+@cross_origin()
 def get_bitacora(id):
     try:
         bitacora = Bitacora.query.get_or_404(id)
@@ -27,6 +29,7 @@ def get_bitacora(id):
 
 # Crear una nueva bitácora
 @bitacora_bp.route('/bitacoras', methods=['POST'])
+@cross_origin()
 def add_bitacora():
     try:
         data = bitacora_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
@@ -39,6 +42,7 @@ def add_bitacora():
 
 # Actualizar una bitácora existente
 @bitacora_bp.route('/bitacoras/<int:id>', methods=['PUT'])
+@cross_origin()
 def update_bitacora(id):
     try:
         bitacora = Bitacora.query.get_or_404(id)  # Si no existe, devuelve un error 404
@@ -52,6 +56,7 @@ def update_bitacora(id):
 
 # Eliminar una bitácora
 @bitacora_bp.route('/bitacoras/<int:id>', methods=['DELETE'])
+@cross_origin()
 def delete_bitacora(id):
     try:
         bitacora = Bitacora.query.get_or_404(id)

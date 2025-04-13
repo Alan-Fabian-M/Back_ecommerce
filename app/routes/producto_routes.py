@@ -21,6 +21,7 @@ def producto_to_dict(producto):
 # Obtener todos los productos
 @producto_bp.route('/productos', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_productos():
     try:
         productos = Producto.query.all()  # Obtener todos los productos
@@ -31,6 +32,7 @@ def get_productos():
 # Obtener un producto específico por ID
 @producto_bp.route('/productos/<int:id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_producto(id):
     try:
         producto = Producto.query.get_or_404(id)  # Obtener el producto por ID
@@ -56,6 +58,7 @@ def get_producto(id):
 
 @producto_bp.route('/productos', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def create_producto():
     try:
         data = request.json
@@ -75,6 +78,7 @@ def create_producto():
 # Actualizar un producto existente
 @producto_bp.route('/productos/<int:id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_producto(id):
     try:
         producto = Producto.query.get_or_404(id)  # Obtener el producto a actualizar
@@ -95,6 +99,7 @@ def update_producto(id):
 # Eliminar un producto
 @producto_bp.route('/productos/<int:id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_producto(id):
     try:
         producto = Producto.query.get_or_404(id)  # Obtener el producto a eliminar

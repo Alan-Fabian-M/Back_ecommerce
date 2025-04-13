@@ -11,6 +11,7 @@ marcas_schema = MarcaSchema(many=True)
 # Obtener todas las marcas
 @marca_bp.route('/marcas', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_marcas():
     try:
         marcas = Marca.query.all()
@@ -21,6 +22,7 @@ def get_marcas():
 # Obtener una marca por ID
 @marca_bp.route('/marcas/<int:id>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_marca(id):
     try:
         marca = Marca.query.get_or_404(id)
@@ -30,6 +32,7 @@ def get_marca(id):
 
 @marca_bp.route('/marcas/<string:nombre>', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_marca_por_nombre(nombre):
     try:
         # Búsqueda parcial, no case-sensitive
@@ -48,6 +51,7 @@ def get_marca_por_nombre(nombre):
 # Crear una nueva marca
 @marca_bp.route('/marcas', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def add_marca():
     try:
         # data = marca_schema.load(request.json)  # Cargar los datos del cuerpo de la solicitud
@@ -62,6 +66,7 @@ def add_marca():
 # Actualizar una marca existente
 @marca_bp.route('/marcas/<int:id>', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def update_marca(id):
     try:
         marca = Marca.query.get_or_404(id)  # Buscar la marca por ID
@@ -76,6 +81,7 @@ def update_marca(id):
 # Eliminar una marca
 @marca_bp.route('/marcas/<int:id>', methods=['DELETE'])
 @jwt_required()
+@cross_origin()
 def delete_marca(id):
     try:
         marca = Marca.query.get_or_404(id)  # Buscar la marca por ID
