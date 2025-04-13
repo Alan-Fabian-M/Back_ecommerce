@@ -1,29 +1,19 @@
-Estructura del proyecto
-
-app/
-├── models/          # Modelos de base de datos
-├── routes/          # Endpoints de la API
-├── services/        # Lógica de negocio (opcional)
-├── utils/           # Funciones auxiliares (opcional)
-├── __init__.py      # Inicialización del app
-├── config.py        # Configuración de la app
-├── main.py          # Punto de entrada de la API
-run.py               # Script principal
-requirements.txt     # Librerías necesarias
-
-
-⚙️ Instalación
+🚀 Instalación
 Clona el repositorio:
 
-    git clone https://github.com/tu-usuario/tu-repo.git
+    git clone https://github.com/tuusuario/ecommerce-backend.git
 
-    cd tu-repo
+    cd ecommerce-backend
 
 
-Crea un entorno virtual:
+Crea y activa un entorno virtual:
 
     python -m venv venv
-    source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+    # Windows
+        venv\Scripts\activate
+    # Linux/Mac
+        source venv/bin/activate
 
 
 Instala las dependencias:
@@ -31,15 +21,54 @@ Instala las dependencias:
     pip install -r requirements.txt
 
 
-Configura la base de datos en config.py o .env:
+⚙️ Configuración
+Crea un archivo .env o edita el archivo de configuración con tus datos:
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://usuario:password@localhost:puerto/nombre_basedatos'
-
-    Example:
-        postgresql://postgres:alan123@localhost/ecommerce
-
+    DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/ecommerce_db
+    SECRET_KEY=tu_clave_secreta
 
 
-Inicia la aplicación:
+🗃️ Migraciones y Seeders
+Inicializa la base de datos (si es la primera vez):
 
+    alembic upgrade head
+
+
+Carga los datos iniciales con seeders (faker):
+
+    python -m app.seeders.faker_seeder
+
+🔐 Autenticación con JWT
+Los usuarios reciben un token JWT al autenticarse. Ese token incluye:
+
+{
+  "Token": "eyJhbGciOi...",
+  "Rol": "admin"
+}
+
+Puedes usar este token en tus peticiones protegidas agregando un header:
+
+    Authorization: Bearer <tu-token>
+
+🧪 Ejecutar el servidor
+    
     python run.py
+
+El servidor se iniciará en: http://127.0.0.1:5000
+
+
+📁 Estructura del proyecto
+
+    ecommerce-2/
+    │
+    ├── app/
+    │   ├── models/           # Modelos de SQLAlchemy
+    │   ├── routes/           # Endpoints de la API
+    │   ├── seeders/          # Archivos para poblar datos iniciales
+    │   ├── __init__.py       # Inicialización del app
+    │   ├── config.py         # Configuraciones
+    │   └── main.py           # Lógica para correr la app
+    │
+    ├── alembic/              # Migrations de base de datos
+    ├── requirements.txt      # Dependencias
+    ├── run.py                # Punto de entrada
