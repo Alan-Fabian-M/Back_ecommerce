@@ -20,7 +20,7 @@ Edita el archivo app/config.py o tus variables de entorno con tu cadena de conex
 
 Inicializar la base de datos con datos de prueba
 
-    python seeders/seed.py
+    python -m app.seeders.faker_seeder
 
 
 ▶️ Ejecutar el servidor

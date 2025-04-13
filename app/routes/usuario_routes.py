@@ -107,7 +107,7 @@ def get_usuario(id):
 #         return jsonify({"error": f"Error al crear el usuario: {str(e)}"}), 500
 
 @usuario_bp.route('/usuarios', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 @cross_origin()
 def add_usuario():
     try:

@@ -6,7 +6,7 @@ class Usuario(db.Model):
     nombre = db.Column(db.String(100))
     apellido = db.Column(db.String(100))
     contrasena = db.Column(db.String(255))
-    telefono = db.Column(db.String(20))
+    telefono = db.Column(db.String(50))
     gmail = db.Column(db.String(100))
     estado = db.Column(db.String(50))
     rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))

@@ -1,6 +1,9 @@
 from faker import Faker
 from datetime import datetime, time
 import random
+from decimal import Decimal
+from werkzeug.security import generate_password_hash
+
 
 from app import create_app, db
 from app.models.cliente_model import Cliente
@@ -139,7 +142,7 @@ def seed_data():
                 db.session.add(Carrito(
                     cantidad=random.randint(1, 5),
                     estado="vendido",
-                    importe=round(producto.precio * 1.1, 2),
+                    importe = round(producto.precio * Decimal('1.1'), 2),
                     importe_desc=round(producto.precio, 2),
                     precio=producto.precio,
                     venta_id=venta.id,
@@ -155,7 +158,7 @@ def seed_data():
         # Movimientos y Bitácora
         for _ in range(10):
             db.session.add(Movimiento(
-                tipo_movimiento=random.choice(["entrada", "salida"]),
+                tipomovimiento=random.choice(["entrada", "salida"]),
                 cantidad=random.randint(1, 20),
                 fecha=faker.date_this_year(),
                 descripcion=faker.text(),

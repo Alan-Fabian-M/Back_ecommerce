@@ -14,11 +14,7 @@ def ejecutar_migraciones():
     os.system("flask db migrate")  # Genera las migraciones
     os.system("flask db upgrade")  # Aplica las migraciones a la base de datos
 
-def ejecutar_seeders():
-    try:
-        subprocess.check_call(["python", "-m", "app.seeders.faker_seeder"])
-    except subprocess.CalledProcessError as e:
-        print("Error ejecutando los seeders:", e)
+
 
 if __name__ == '__main__':
     # Primero, aseguramos que las migraciones estén hechas
