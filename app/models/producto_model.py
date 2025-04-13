@@ -12,3 +12,6 @@ class Producto(db.Model):
     garantia = db.Column(db.Text)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'))
     marca_id = db.Column(db.Integer, db.ForeignKey('marca.id'))
+    
+    categoria = db.relationship('Categoria', backref='productos')
+    marca = db.relationship('Marca', backref='productos')

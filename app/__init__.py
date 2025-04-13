@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .config import Config
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
 
@@ -9,6 +11,8 @@ def create_app():
     app.config.from_object(Config)
     
     db.init_app(app)
+    jwt = JWTManager(app)
+    migrate = Migrate(app, db)
     
     # Importar y registrar los blueprints dentro de la función `create_app` para evitar importación circular
     from .routes.cliente_routes import cliente_bp
@@ -21,6 +25,7 @@ def create_app():
     from .routes.permiso_routes import permiso_bp
     from .routes.usuario_routes import usuario_bp
     from .routes.rol_permiso_routes import rol_permiso_bp
+    from .routes.auth_routes import auth_bp
 
     # Registrar los blueprints
     app.register_blueprint(cliente_bp)
@@ -33,6 +38,7 @@ def create_app():
     app.register_blueprint(permiso_bp)
     app.register_blueprint(usuario_bp)
     app.register_blueprint(rol_permiso_bp)
+    app.register_blueprint(auth_bp)
 
     # print("Rutas registradas:")
     # for rule in app.url_map.iter_rules():

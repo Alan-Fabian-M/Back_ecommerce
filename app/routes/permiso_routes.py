@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from ..models.permiso_model import Permiso
 from ..schemas.permiso_schema import PermisoSchema
 from app import db  # Asegúrate de importar db desde tu archivo de configuración
+from flask_jwt_extended import jwt_required
 
 permiso_bp = Blueprint('permiso_bp', __name__)
 permiso_schema = PermisoSchema(session=db.session)
@@ -9,6 +10,7 @@ permisos_schema = PermisoSchema(many=True)
 
 # Obtener todos los permisos
 @permiso_bp.route('/permisos', methods=['GET'])
+@jwt_required()
 def get_permisos():
     try:
         permisos = Permiso.query.all()
@@ -18,6 +20,7 @@ def get_permisos():
 
 # Obtener un permiso por ID
 @permiso_bp.route('/permisos/<int:id>', methods=['GET'])
+@jwt_required()
 def get_permiso(id):
     try:
         permiso = Permiso.query.get_or_404(id)
@@ -27,6 +30,7 @@ def get_permiso(id):
 
 # Crear un nuevo permiso
 @permiso_bp.route('/permisos', methods=['POST'])
+@jwt_required()
 def add_permiso():
 
     try:
@@ -41,6 +45,7 @@ def add_permiso():
 
 # Actualizar un permiso existente
 @permiso_bp.route('/permisos/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_permiso(id):
     try:
         permiso = Permiso.query.get_or_404(id)  # Buscar el permiso por ID
@@ -54,6 +59,7 @@ def update_permiso(id):
 
 # Eliminar un permiso
 @permiso_bp.route('/permisos/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_permiso(id):
     try:
         permiso = Permiso.query.get_or_404(id)  # Buscar el permiso por ID

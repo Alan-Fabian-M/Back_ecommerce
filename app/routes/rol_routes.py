@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..models.rol_model import Rol
 from ..schemas.rol_schema import RolSchema
+from flask_jwt_extended import jwt_required
 from app import db
 
 rol_bp = Blueprint('rol_bp', __name__)
@@ -16,6 +17,7 @@ def rol_to_dict(rol):
     }
 
 @rol_bp.route('/roles', methods=['GET'])
+@jwt_required()
 def get_roles():
     try:
         roles = Rol.query.all()
@@ -26,6 +28,7 @@ def get_roles():
     
 
 @rol_bp.route('/roles/<int:id>', methods=['GET'])
+@jwt_required()
 def get_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
@@ -36,6 +39,7 @@ def get_rol(id):
     
 
 @rol_bp.route('/roles', methods=['POST'])
+@jwt_required()
 def add_rol():
     try:
         # Load the data into the schema
@@ -51,6 +55,7 @@ def add_rol():
         return jsonify({"error": f"Error al crear el rol: {str(e)}"}), 500
 
 @rol_bp.route('/roles/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
@@ -68,6 +73,7 @@ def update_rol(id):
         return jsonify({"error": f"Error al actualizar el rol con id {id}: {str(e)}"}), 500
 
 @rol_bp.route('/roles/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
@@ -76,3 +82,18 @@ def delete_rol(id):
         return jsonify({'message': 'Rol eliminado'}), 200
     except Exception as e:
         return jsonify({"error": f"Error al eliminar el rol con id {id}: {str(e)}"}), 500
+
+
+@rol_bp.route('/roles/<string:nombre>', methods=['GET'])
+@jwt_required()
+def get_rol_por_nombre(nombre):
+    try:
+        # Búsqueda parcial, no case-sensitive
+        roles = Rol.query.filter(Rol.nombre.ilike(f"%{nombre}%")).all()
+        
+        if not roles:
+            return jsonify({"error": f"No se encontraron roles con nombre que contenga '{nombre}'"}), 404
+        
+        return jsonify(roles_schema.dump(roles))
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener roles con nombre que contenga '{nombre}': {str(e)}"}), 500

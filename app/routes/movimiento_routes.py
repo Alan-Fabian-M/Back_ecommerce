@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from ..models.movimiento_model import Movimiento
 from ..schemas.movimiento_schema import MovimientoSchema
 from app import db  # Asegúrate de importar db desde tu archivo de configuración
+from flask_jwt_extended import jwt_required
 
 movimiento_bp = Blueprint('movimiento_bp', __name__)
 movimiento_schema = MovimientoSchema(session=db.session)
@@ -9,6 +10,7 @@ movimientos_schema = MovimientoSchema(many=True)
 
 # Obtener todos los movimientos
 @movimiento_bp.route('/movimientos', methods=['GET'])
+@jwt_required()
 def get_movimientos():
     try:
         movimientos = Movimiento.query.all()
@@ -18,6 +20,7 @@ def get_movimientos():
 
 # Obtener un movimiento por ID
 @movimiento_bp.route('/movimientos/<int:id>', methods=['GET'])
+@jwt_required()
 def get_movimiento(id):
     try:
         movimiento = Movimiento.query.get_or_404(id)
@@ -27,6 +30,7 @@ def get_movimiento(id):
 
 # Crear un nuevo movimiento
 @movimiento_bp.route('/movimientos', methods=['POST'])
+@jwt_required()
 def add_movimiento():
     try:
         data = movimiento_schema.load(request.json)  # Cargar los datos del cuerpo de la solicitud
@@ -39,6 +43,7 @@ def add_movimiento():
 
 # Actualizar un movimiento existente
 @movimiento_bp.route('/movimientos/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_movimiento(id):
     try:
         movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
@@ -52,6 +57,7 @@ def update_movimiento(id):
 
 # Eliminar un movimiento
 @movimiento_bp.route('/movimientos/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_movimiento(id):
     try:
         movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID

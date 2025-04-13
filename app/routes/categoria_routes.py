@@ -2,6 +2,7 @@ from ..models.categoria_model import Categoria
 from ..schemas.categoria_schema import CategoriaSchema
 from flask import Blueprint, request, jsonify
 from app import db
+from flask_jwt_extended import jwt_required
 
 categoria_bp = Blueprint('categoria_bp', __name__)
 categoria_schema = CategoriaSchema(session=db.session)
@@ -9,6 +10,7 @@ categorias_schema = CategoriaSchema(many=True)
 
 # Obtener todas las categorías
 @categoria_bp.route('/categorias', methods=['GET'])
+@jwt_required()
 def get_categorias():
     try:
         categorias = Categoria.query.all()
@@ -18,6 +20,7 @@ def get_categorias():
 
 # Obtener una categoría por ID
 @categoria_bp.route('/categorias/<int:id>', methods=['GET'])
+@jwt_required()
 def get_categoria(id):
     try:
         categoria = Categoria.query.get_or_404(id)  # Si no existe, devuelve un error 404
@@ -27,6 +30,7 @@ def get_categoria(id):
 
 # Crear una nueva categoría
 @categoria_bp.route('/categorias', methods=['POST'])
+@jwt_required()
 def add_categoria():
     try:
         data = categoria_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
@@ -39,6 +43,7 @@ def add_categoria():
 
 # Actualizar una categoría existente
 @categoria_bp.route('/categorias/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_categoria(id):
     try:
         categoria = Categoria.query.get_or_404(id)  # Si no existe, devuelve un error 404
@@ -52,6 +57,7 @@ def update_categoria(id):
 
 # Eliminar una categoría
 @categoria_bp.route('/categorias/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_categoria(id):
     try:
         categoria = Categoria.query.get_or_404(id)

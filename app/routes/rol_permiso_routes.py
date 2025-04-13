@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from app import db
 from ..models.rol_permiso_model import RolPermiso
 from ..schemas.rol_permiso_schema import RolPermisoSchema
+from flask_jwt_extended import jwt_required
 
 rol_permiso_bp = Blueprint('rol_permiso_bp', __name__)
 rol_permiso_schema = RolPermisoSchema(session=db.session)
@@ -16,6 +17,7 @@ def rol_permiso_to_dict(rol_permiso):
 
 # Obtener todos los roles-permisos
 @rol_permiso_bp.route('/roles_permisos', methods=['GET'])
+@jwt_required()
 def get_roles_permisos():
     try:
         roles_permisos = RolPermiso.query.all()  # Obtener todos los roles-permisos
@@ -34,6 +36,7 @@ def get_rol_permiso(rol_id, permiso_id):
     
 # Crear un nuevo rol-permiso
 @rol_permiso_bp.route('/roles_permisos', methods=['POST'])
+@jwt_required()
 def add_rol_permiso():
     try:
 
@@ -52,6 +55,7 @@ def add_rol_permiso():
 
 # Actualizar un rol-permiso existente
 @rol_permiso_bp.route('/roles_permisos/<int:rol_id>/<int:permiso_id>', methods=['PUT'])
+@jwt_required()
 def update_rol_permiso(rol_id, permiso_id):
     try:
         rol_permiso = RolPermiso.query.get_or_404((rol_id, permiso_id))  # Obtener por clave compuesta
@@ -78,6 +82,7 @@ def update_rol_permiso(rol_id, permiso_id):
 
 # Eliminar un rol-permiso
 @rol_permiso_bp.route('/roles_permisos/<int:rol_id>/<int:permiso_id>', methods=['DELETE'])
+@jwt_required()
 def delete_rol_permiso(rol_id, permiso_id):
     try:
         rol_permiso = RolPermiso.query.get_or_404((rol_id, permiso_id))  # Obtener por clave compuesta
