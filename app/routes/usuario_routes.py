@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify
 from app import db
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 
 usuario_bp = Blueprint('usuario_bp', __name__)

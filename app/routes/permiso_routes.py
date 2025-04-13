@@ -3,6 +3,7 @@ from ..models.permiso_model import Permiso
 from ..schemas.permiso_schema import PermisoSchema
 from app import db  # Asegúrate de importar db desde tu archivo de configuración
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 permiso_bp = Blueprint('permiso_bp', __name__)
 permiso_schema = PermisoSchema(session=db.session)

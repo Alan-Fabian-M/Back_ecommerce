@@ -2,6 +2,7 @@ from ..models.bitacora_model import Bitacora
 from ..schemas.bitacora_schema import BitacoraSchema
 from flask import Blueprint, request, jsonify
 from app import db
+from flask_cors import cross_origin
 
 bitacora_bp = Blueprint('bitacora_bp', __name__)
 bitacora_schema = BitacoraSchema(session=db.session)

@@ -3,6 +3,7 @@ from app import db
 from ..models.rol_permiso_model import RolPermiso
 from ..schemas.rol_permiso_schema import RolPermisoSchema
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 rol_permiso_bp = Blueprint('rol_permiso_bp', __name__)
 rol_permiso_schema = RolPermisoSchema(session=db.session)

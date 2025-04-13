@@ -3,6 +3,7 @@ from ..schemas.categoria_schema import CategoriaSchema
 from flask import Blueprint, request, jsonify
 from app import db
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 categoria_bp = Blueprint('categoria_bp', __name__)
 categoria_schema = CategoriaSchema(session=db.session)

@@ -3,6 +3,7 @@ from app import db
 from ..models.producto_model import Producto  # Asegúrate de importar el modelo correcto
 from ..schemas.producto_schema import ProductoSchema
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 producto_bp = Blueprint('producto', __name__)
 Producto_schema = ProductoSchema(session=db.session)

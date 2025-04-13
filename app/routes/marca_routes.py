@@ -3,6 +3,7 @@ from ..models.marca_model import Marca
 from ..schemas.marca_schema import MarcaSchema
 from app import db  # Asegúrate de importar db desde tu archivo de configuración
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 marca_bp = Blueprint('marca_bp', __name__)
 marca_schema = MarcaSchema(session=db.session)

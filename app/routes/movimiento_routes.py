@@ -3,6 +3,7 @@ from ..models.movimiento_model import Movimiento
 from ..schemas.movimiento_schema import MovimientoSchema
 from app import db  # Asegúrate de importar db desde tu archivo de configuración
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 movimiento_bp = Blueprint('movimiento_bp', __name__)
 movimiento_schema = MovimientoSchema(session=db.session)

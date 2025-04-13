@@ -3,6 +3,7 @@ from ..models.rol_model import Rol
 from ..schemas.rol_schema import RolSchema
 from flask_jwt_extended import jwt_required
 from app import db
+from flask_cors import cross_origin
 
 rol_bp = Blueprint('rol_bp', __name__)
 rol_schema = RolSchema(session=db.session)
