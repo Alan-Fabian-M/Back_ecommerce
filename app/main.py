@@ -1,6 +1,8 @@
 from flask import Flask
 from app import db
 app = Flask(__name__)
+from dotenv import load_dotenv
+load_dotenv()
 
 db.init_app(app)
 
