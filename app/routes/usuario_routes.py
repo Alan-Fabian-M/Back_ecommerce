@@ -144,17 +144,20 @@ def update_usuario(id):
         usuario = Usuario.query.get_or_404(id)
         data = request.json
 
-        # Verifica que al menos un campo se haya proporcionado para la actualización
         if not any(data.values()):
             return jsonify({"error": "Debe proporcionar al menos un campo para actualizar"}), 400
-        
-        # Deserializa y actualiza los campos proporcionados
-        updated_data = usuario_schema.load(data, partial=True)
-        for key, value in updated_data.items():
-            setattr(usuario, key, value)
+
+        # Actualizar campos uno por uno desde el dict
+        for key, value in data.items():
+            if hasattr(usuario, key):
+                setattr(usuario, key, value)
+
         db.session.commit()
-        return jsonify(usuario_to_dict(usuario))  # Devuelve el usuario actualizado
+        return jsonify(usuario_schema.dump(usuario)), 200
+
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": f"Error al actualizar el usuario con id {id}: {str(e)}"}), 500
 
 @usuario_bp.route('/usuarios/<int:id>', methods=['DELETE'])
@@ -169,4 +172,14 @@ def delete_usuario(id):
     except Exception as e:
         return jsonify({"error": f"Error al eliminar el usuario con id {id}: {str(e)}"}), 500
     
+    #Validar Correo 
+@usuario_bp.route('/usuarios/validar-correo', methods=['POST'])
+@cross_origin()
+def validar_correo():
+    gmail = request.json.get('gmail')
+    if not gmail:
+        return jsonify({"error": "Correo no proporcionado"}), 400
+
+    usuario = Usuario.query.filter_by(gmail=gmail).first()
+    return jsonify({"existe": usuario is not None})
 

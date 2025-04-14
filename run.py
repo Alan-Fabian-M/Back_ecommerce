@@ -22,7 +22,7 @@ if __name__ == '__main__':
         ejecutar_migraciones()  # Ejecuta migraciones
 
         # Luego, poblar la base de datos con datos falsos
-        ejecutar_seeders()
+        # ejecutar_seeders()
 
     # Ahora se inicia la aplicación
     app.run(debug=True)

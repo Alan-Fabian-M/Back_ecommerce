@@ -71,7 +71,7 @@ def add_marca():
 def update_marca(id):
     try:
         marca = Marca.query.get_or_404(id)  # Buscar la marca por ID
-        data = marca_schema.load(request.json)  # Cargar los nuevos datos
+        data = request.get_json()  # Cargar los nuevos datos
         for key, value in data.items():
             setattr(marca, key, value)  # Actualizar los campos de la marca
         db.session.commit()
