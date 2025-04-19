@@ -10,39 +10,14 @@ class ProductoSchema(SQLAlchemyAutoSchema):
         load_instance = True
         include_fk = True  # Esto sigue siendo útil para POST y PUT
 
-    # Mostrar el nombre en lugar del ID
-    categoria = fields.String(attribute="categoria.nombre")
-    marca = fields.String(attribute="marca.nombre")
 
-    # Ocultar los campos de ID si no quieres que salgan en el GET (opcional)
-    # categoria_id = fields.Int(load_only=True)
-    # marca_id = fields.Int(load_only=True)
+    categoria_nombre = fields.Method("get_categoria_nombre")
+    marca_nombre = fields.Method("get_marca_nombre")
 
-    # Para POST y PUT con nombre en lugar de ID
-    categoria_nombre = fields.String(required=True, load_only=True)
-    marca_nombre = fields.String(required=True, load_only=True)
+    def get_marca_nombre(self, obj):
+        return obj.marca.nombre if obj.marca else None
+    def get_categoria_nombre(self, obj):
+        return obj.categoria.nombre if obj.categoria else None
 
-    @validates('categoria_nombre')
-    def validar_categoria(self, value):
-        categoria = Categoria.query.filter_by(nombre=value).first()
-        if not categoria:
-            raise ValidationError(f"La categoría '{value}' no existe.")
-        self.context['categoria_id'] = categoria.id
 
-    @validates('marca_nombre')
-    def validar_marca(self, value):
-        marca = Marca.query.filter_by(nombre=value).first()
-        if not marca:
-            raise ValidationError(f"La marca '{value}' no existe.")
-        self.context['marca_id'] = marca.id
-
-    def load(self, data, *args, **kwargs):
-        instance = super().load(data, *args, **kwargs)
-
-        # Insertar los IDs en el producto antes de devolverlo
-        if 'categoria_id' in self.context:
-            instance.categoria_id = self.context['categoria_id']
-        if 'marca_id' in self.context:
-            instance.marca_id = self.context['marca_id']
-
-        return instance
+   

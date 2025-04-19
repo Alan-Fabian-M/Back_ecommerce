@@ -1,3 +1,5 @@
+from ..utils.IdCategoriaUtils import categoria_id
+from ..utils.IdMarcaUtils import marca_id
 from flask import Blueprint, jsonify, request
 from app import db
 from ..models.producto_model import Producto  # Asegúrate de importar el modelo correcto
@@ -10,14 +12,6 @@ Producto_schema = ProductoSchema(session=db.session)
 Productos_schema = ProductoSchema(many=True)
 
 # Función para serializar un producto
-def producto_to_dict(producto):
-    return {
-        "id": producto.id,
-        "nombre": producto.nombre,
-        "stock": producto.stock,
-        "precio": str(producto.precio),
-        "descripcion": producto.descripcion
-    }
 
 # Obtener todos los productos
 @producto_bp.route('/productos', methods=['GET'])
@@ -62,17 +56,21 @@ def get_producto_por_nombre(nombre):
 @cross_origin()
 def create_producto():
     try:
-        data = request.json
+        data = request.get_json()
         # Validar que los campos requeridos estén presentes
-        if not all(key in data for key in ("nombre", "stock", "precio", "descripcion", "categoria_nombre", "marca_nombre")):
-            return jsonify({"error": "Faltan campos requeridos"}), 400
+        # if not all(key in data for key in ("nombre", "stock", "precio", "descripcion", "categoria_nombre", "marca_nombre")):
+        #     return jsonify({"error": "Faltan campos requeridos"}), 400
 
         # Crear el nuevo producto con los datos recibidos, incluyendo los nombres de la categoría y la marca
+        data = marca_id(data)
+        data = categoria_id(data)
         producto = Producto_schema.load(data)  # Esto ahora convierte los nombres en ids
 
         db.session.add(producto)  # Agregar el producto a la base de datos
         db.session.commit()  # Confirmar la transacción
-        return jsonify({"mensaje": "Producto creado correctamente", "producto": producto_to_dict(producto)}), 201
+        nuevo_producto = Producto_schema.dump(producto)
+        print("Hola")
+        return jsonify(nuevo_producto), 201
     except Exception as e:
         return jsonify({"error": f"Error al crear el producto: {str(e)}"}), 400
 
@@ -82,30 +80,33 @@ def create_producto():
 @cross_origin()
 def update_producto(id):
     try:
-        producto = Producto.query.get_or_404(id)  # Obtener el producto a actualizar
-        data = request.json
+        producto = Producto.query.get_or_404(id)
 
-        # Validar que los campos requeridos estén presentes
-        if not all(key in data for key in ("nombre", "stock", "precio", "descripcion")):
-            return jsonify({"error": "Faltan campos requeridos"}), 400
+        data = request.get_json()
+        
+        data = marca_id(data)
+        data = categoria_id(data)
 
-        # Actualizar los atributos del producto
-        for key, value in data.items():
-            setattr(producto, key, value)
-        db.session.commit()  # Confirmar la transacción
-        return jsonify({"mensaje": "Producto actualizado correctamente", "producto": producto_to_dict(producto)})
+        data = Producto_schema.load(request.get_json(), partial=True)
+        for key in request.json:
+            setattr(producto, key, getattr(data, key))
+
+        db.session.commit()
+        return jsonify(Producto_schema.dump(producto)), 200
     except Exception as e:
-        return jsonify({"error": f"Error al actualizar el producto con id {id}: {str(e)}"}), 400
+        db.session.rollback()
+        return jsonify({"error": f"Error al actualizar el producto con id {id}: {str(e)}"}), 500
 
-# Eliminar un producto
-@producto_bp.route('/productos/<int:id>', methods=['DELETE'])
-@jwt_required()
-@cross_origin()
-def delete_producto(id):
-    try:
-        producto = Producto.query.get_or_404(id)  # Obtener el producto a eliminar
-        db.session.delete(producto)  # Eliminar el producto de la base de datos
-        db.session.commit()  # Confirmar la transacción
-        return jsonify({"mensaje": "Producto eliminado correctamente", "producto": producto_to_dict(producto)})
-    except Exception as e:
-        return jsonify({"error": f"Error al eliminar el producto con id {id}: {str(e)}"}), 500
+
+# # Eliminar un producto
+# @producto_bp.route('/productos/<int:id>', methods=['DELETE'])
+# @jwt_required()
+# @cross_origin()
+# def delete_producto(id):
+#     try:
+#         producto = Producto.query.get_or_404(id)  # Obtener el producto a eliminar
+#         db.session.delete(producto)  # Eliminar el producto de la base de datos
+#         db.session.commit()  # Confirmar la transacción
+#         return jsonify({"mensaje": "Producto eliminado correctamente", "producto": producto_to_dict(producto)})
+#     except Exception as e:
+#         return jsonify({"error": f"Error al eliminar el producto con id {id}: {str(e)}"}), 500

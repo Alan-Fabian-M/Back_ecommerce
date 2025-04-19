@@ -1,3 +1,4 @@
+from ..utils.IdRolUtils import rol_id
 from ..models.usuario_model import Usuario
 from ..schemas.usuario_schema import UsuarioSchema
 from ..models.rol_model import Rol  
@@ -12,14 +13,6 @@ usuario_bp = Blueprint('usuario_bp', __name__)
 usuario_schema = UsuarioSchema(session=db.session)
 usuarios_schema = UsuarioSchema(many=True)
 
-# Función para serializar un usuario
-def usuario_to_dict(usuario):
-    return {
-        "id": usuario.id,
-        "nombre": usuario.nombre,  # Asumiendo que Usuario tiene un campo 'nombre'
-        "gmail": usuario.gmail,  # Asumiendo que Usuario tiene un campo 'email'
-        "rol_id": usuario.rol_id  # Asumiendo que Usuario tiene un campo 'rol_id'
-    }
 
 @usuario_bp.route('/usuarios', methods=['GET'])
 @jwt_required()
@@ -127,7 +120,7 @@ def update_usuario(id):
         if not any(data.values()):
             return jsonify({"error": "Debe proporcionar al menos un campo para actualizar"}), 400
 
-        
+        data = rol_id(data)
 
         # Actualizar campos uno por uno desde el dict
         for key, value in data.items():

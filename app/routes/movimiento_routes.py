@@ -1,3 +1,4 @@
+from ..utils.IdProductoUtils import producto_id
 from flask import Blueprint, request, jsonify
 from ..models.movimiento_model import Movimiento
 from ..schemas.movimiento_schema import MovimientoSchema
@@ -47,6 +48,7 @@ def add_movimiento():
         data['usuario_codigo'] = usuario_id
         # Cargar los datos del cuerpo de la solicitud, incluyendo el usuario_codigo
         data["fecha"] = datetime.now().date().isoformat()
+        data = producto_id(data)
         nuevo_movimiento = movimiento_schema.load(data)
         # Crear una nueva instancia de Movimiento con los datos cargados
         
@@ -69,17 +71,26 @@ def add_movimiento():
 @cross_origin()
 def update_movimiento(id):
     try:
-        movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
-        data = movimiento_schema.load(request.json)  # Cargar los nuevos datos
-        for key, value in data.items():
-            setattr(movimiento, key, value)  # Actualizar los campos del movimiento
+        movimiento = Movimiento.query.get_or_404(id)
+
+        data = request.get_json()
+        data = producto_id(data)
         
-        usuario_id = get_jwt_identity()
-        movimiento = movimiento_schema.dump(data)
-        registrar_en_bitacora(usuario_id, "actualizar" , "actualizando movimiento")
+        # data = movimiento_schema.load(request.get_json(), partial=True)
+        
+        
+        for key, value in data.items():
+            if hasattr(movimiento, key):
+                setattr(movimiento, key, value)
+
+        
+        # usuario_id = get_jwt_identity()
+        # registrar_en_bitacora(usuario_id, "actualizar", "actualizando movimiento")
+
         db.session.commit()
-        return jsonify(movimiento)  # Devolver el movimiento actualizado
+        return jsonify(movimiento_schema.dump(movimiento)), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 # Eliminar un movimiento
@@ -88,12 +99,12 @@ def update_movimiento(id):
 @cross_origin()
 def delete_movimiento(id):
     try:
-        data = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
+        movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
         db.session.delete(movimiento)  # Eliminar el movimiento
-        usuario_id = get_jwt_identity()
-        movimiento = movimiento_schema.dump(data)
-        registrar_en_bitacora(usuario_id, "eliminar" , "elimando movimiento")
+        
+        movimiento = movimiento_schema.dump(movimiento)
+        
         db.session.commit()
-        return jsonify({'message': 'Movimiento eliminado', 'data': movimiento}), 200  # Devolver el movimiento eliminado
+        return jsonify({'message': 'Movimiento eliminado', 'movimiento': movimiento}), 200  # Devolver el movimiento eliminado
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -29,13 +29,14 @@ def get_cupon(id):
 @cupon_bp.route('/cupones', methods=['POST'])
 def add_cupon():
     try:
-        data = cupon_schema.load(request.json)  # Cargar los datos de la solicitud
-        nuevo_cupon = Cupon(**data)  # Crear una instancia de Cupon
-        db.session.add(nuevo_cupon)
+        data = cupon_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
+
+        db.session.add(data)
         db.session.commit()
-        return jsonify(cupon_schema.dump(nuevo_cupon)), 201  # Devolver el cupón creado
+        return jsonify(cupon_schema.dump(data)), 201  # Devolver el cupón creado
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # Actualizar un cupón existente
 @cupon_bp.route('/cupones/<int:id>', methods=['PUT'])

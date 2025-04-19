@@ -43,8 +43,6 @@ def verificar_token():
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    response = jsonify({"msg": "Logout successful"})
     usuario_id = get_jwt_identity()
     registrar_en_bitacora(usuario_id, "logout", "saliendo del sistema")
-    unset_jwt_cookies(response)
-    return response
+    return jsonify({"msg": "Logout exitoso"}), 200

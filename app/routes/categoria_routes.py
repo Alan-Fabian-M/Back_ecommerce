@@ -62,19 +62,21 @@ def add_categoria():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Actualizar una categoría existente
 @categoria_bp.route('/categorias/<int:id>', methods=['PUT'])
 @jwt_required()
 @cross_origin()
 def update_categoria(id):
     try:
-        categoria = Categoria.query.get_or_404(id)  # Si no existe, devuelve un error 404
-        data = categoria_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
-        for key, value in data.items():
-            setattr(categoria, key, value)  # Actualizar los atributos de la categoría
+        categoria = Categoria.query.get_or_404(id)
+
+        data = categoria_schema.load(request.get_json(), partial=True)
+        for key in request.json:
+            setattr(categoria, key, getattr(data, key))
+
         db.session.commit()
-        return jsonify(categoria_schema.dump(categoria))  # Retornar la categoría actualizada
+        return jsonify(categoria_schema.dump(categoria)), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 # Eliminar una categoría

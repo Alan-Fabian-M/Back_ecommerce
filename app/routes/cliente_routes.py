@@ -46,26 +46,42 @@ def get_cliente_por_nombre(nombre):
 @cliente_bp.route('/clientes', methods=['POST'])
 def add_cliente():
     try:
-        data = cliente_schema.load(request.json)  # Cargar los datos de la solicitud
-        nuevo_cliente = Cliente(**data)  # Crear una instancia de Cliente
+        data = request.json
+        data['contrasena'] = generate_password_hash(data['contrasena'])
+        
+        nuevo_cliente = cliente_schema.load(data)
+        
         db.session.add(nuevo_cliente)
-        db.session.commit()
-        return jsonify(cliente_schema.dump(nuevo_cliente)), 201  # Devolver el cliente creado
+        db.session.commit()         
+        
+        return jsonify(cliente_schema.dump(nuevo_cliente)), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Error al crear el cliente: {str(e)}"}), 500
 
-# Actualizar un cliente existente
+
+
 @cliente_bp.route('/clientes/<int:id>', methods=['PUT'])
+@jwt_required()
+@cross_origin()
 def update_cliente(id):
     try:
-        cliente = Cliente.query.get_or_404(id)  # Buscar el cliente por ID
-        data = cliente_schema.load(request.json)  # Cargar los nuevos datos
+        cliente = Cliente.query.get_or_404(id)
+
+        data = request.json
+
+
+        # data = cliente_schema.load(request.get_json(), partial=True)
+        
         for key, value in data.items():
-            setattr(cliente, key, value)  # Actualizar el cliente
+            if hasattr(cliente, key):
+                setattr(cliente, key, value)
+
         db.session.commit()
-        return jsonify(cliente_schema.dump(cliente))  # Devolver el cliente actualizado
+        return jsonify(cliente_schema.dump(cliente)), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 
 # Eliminar un cliente
 @cliente_bp.route('/clientes/<int:id>', methods=['DELETE'])
