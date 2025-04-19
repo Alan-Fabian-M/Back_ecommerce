@@ -111,13 +111,13 @@ def update_producto(id):
     try:
         producto = Producto.query.get_or_404(id)
         archivo = request.files.get("imagen")
+        imagen_url = None
         
         data = request.form.to_dict()
-        
         data = marca_id(data)
         data = categoria_id(data)
-
         data = Producto_schema.load(data, partial=True)
+
         for key in request.form.to_dict():
             setattr(producto, key, getattr(data, key))
             
