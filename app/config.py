@@ -3,8 +3,8 @@ from datetime import timedelta
 
 class Config:
     # Usa la variable de entorno DATABASE_URL que Render genera automáticamente
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    # SQLALCHEMY_DATABASE_URI = "postgresql://si2_user:G8OQJC0Yt9WREGNUVylTxdnNv63RpO47@dpg-cvu0lr7gi27c73acfn20-a.oregon-postgres.render.com/si2"
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = "postgresql://si2_user:G8OQJC0Yt9WREGNUVylTxdnNv63RpO47@dpg-cvu0lr7gi27c73acfn20-a.oregon-postgres.render.com/si2"
     
     CLOUDINARY_CLOUD_NAME = "dozywphod"
     CLOUDINARY_API_KEY = "441626374645742"
