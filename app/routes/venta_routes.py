@@ -69,7 +69,18 @@ def update_venta(id):
     try:
         venta = Venta.query.get_or_404(id)
 
-        data = venta_schema.load(request.get_json(), partial=True)
+        data = request.get_json()
+
+        data = cliente_id(data)
+        data = metodo_pago_id(data)
+        data = cupon_id(data)
+        
+
+        data = venta_schema.load(data, partial=True)
+        
+        
+        
+        
         for key in request.json:
             setattr(venta, key, getattr(data, key))
 

@@ -1,3 +1,4 @@
+from ..utils.uploader import subir_imagen
 from ..models.categoria_model import Categoria
 from ..schemas.categoria_schema import CategoriaSchema
 from flask import Blueprint, request, jsonify
@@ -55,12 +56,25 @@ def get_categoria_por_nombre(nombre):
 def add_categoria():
     try:
         data = categoria_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
+        archivo = request.files.get("imagen") 
+        
+        if archivo:
+            url = subir_imagen(archivo)
+            data["url"] = url
+        
         
         db.session.add(data)
+        
+        db.session.flush()  # consigue el ID sin hacer commit
+
+        
+        
         db.session.commit()
         return jsonify(categoria_schema.dump(data)), 201  # Devolver la categoría creada
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 @categoria_bp.route('/categorias/<int:id>', methods=['PUT'])
 @jwt_required()
@@ -68,7 +82,13 @@ def add_categoria():
 def update_categoria(id):
     try:
         categoria = Categoria.query.get_or_404(id)
+        archivo = request.files.get("imagen")
 
+        if archivo:
+            url = subir_imagen(archivo)
+            data["url"] = url  # Actualiza la URL de la imagen
+
+        
         data = categoria_schema.load(request.get_json(), partial=True)
         for key in request.json:
             setattr(categoria, key, getattr(data, key))

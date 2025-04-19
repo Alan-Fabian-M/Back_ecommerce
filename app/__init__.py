@@ -4,7 +4,7 @@ from .config import Config
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_cors import CORS
-
+import cloudinary
 
 db = SQLAlchemy()
 
@@ -18,6 +18,14 @@ def create_app():
     app.config.from_object(Config)
     
     # CORS(app, resources={r"/api/*": {"origins": "http://localhost:4200"}})
+    
+    cloudinary.config(
+        cloud_name = 'TU_CLOUD_NAME',
+        api_key = 'TU_API_KEY',
+        api_secret = 'TU_API_SECRET',
+        secure = True
+    )
+    
     
     db.init_app(app)
     jwt = JWTManager(app)

@@ -30,36 +30,34 @@ def get_cupon(id):
 @cupon_bp.route('/cupones', methods=['POST'])
 def add_cupon():
     try:
-        data = cupon_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
+        # Obtener los datos enviados por el cliente
+        data = request.json
+        
+        # Validar y cargar el objeto Cupon
+        cupon = cupon_schema.load(data)
 
-        # Obtener la fecha actual (sin la hora) para fecha_inicio
-        fecha_inicio = datetime.now().date()
-
-        # Asignar la fecha de inicio como la fecha actual
-        data.fecha_inicio = fecha_inicio
-
-        # Calcular fecha_fin como 30 días después de fecha_inicio
-        fecha_fin = fecha_inicio + timedelta(days=30)
-        data.fecha_fin = fecha_fin
-
-        db.session.add(data)
+        # Guardar en la base de datos
+        db.session.add(cupon)
         db.session.commit()
-        return jsonify(cupon_schema.dump(data)), 201  # Devolver el cupón creado
+
+        return jsonify(cupon_schema.dump(cupon)), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# Actualizar un cupón existente
 @cupon_bp.route('/cupones/<int:id>', methods=['PUT'])
 def update_cupon(id):
     try:
-        cupon = Cupon.query.get_or_404(id)  # Buscar el cupón por ID
-        data = cupon_schema.load(request.json)  # Cargar los nuevos datos
-        for key, value in data.items():
-            setattr(cupon, key, value)  # Actualizar el cupón
+        cupon = Cupon.query.get_or_404(id)
+
+        data = cupon_schema.load(request.get_json(), partial=True)
+        for key in request.json:
+            setattr(cupon, key, getattr(data, key))
+
         db.session.commit()
-        return jsonify(cupon_schema.dump(cupon))  # Devolver el cupón actualizado
+        return jsonify(cupon_schema.dump(cupon)), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 # Eliminar un cupón

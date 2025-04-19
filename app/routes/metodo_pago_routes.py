@@ -26,16 +26,7 @@ def get_metodo_pago(id):
         return jsonify({"error": str(e)}), 500
 
 # Crear un nuevo método de pago
-@metodo_pago_bp.route('/metodos_pago', methods=['POST'])
-def add_metodo_pago():
-    try:
-        data = metodo_pago_schema.load(request.json)  # Cargar los datos del cuerpo de la solicitud
-        nuevo_metodo = MetodoPago(**data)  # Crear una nueva instancia de MetodoPago
-        db.session.add(nuevo_metodo)
-        db.session.commit()
-        return jsonify(metodo_pago_schema.dump(nuevo_metodo)), 201  # Devolver el nuevo método creado
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
 
 
 @metodo_pago_bp.route('/metodos_pago/<string:nombre>', methods=['GET'])
@@ -50,7 +41,17 @@ def get_Metodo_pago_por_nombre(nombre):
         return jsonify(metodos_pago_schema.dump(metodo_pago))
     except Exception as e:
         return jsonify({"error": f"Error al obtener Metodo_pagoes con nombre que contenga '{nombre}': {str(e)}"}), 500
-
+    
+@metodo_pago_bp.route('/metodos_pago', methods=['POST'])
+def add_metodo_pago():
+    try:
+        data = metodo_pago_schema.load(request.json)  # Cargar los datos del cuerpo de la solicitud
+        # nuevo_metodo = MetodoPago(**data)  # Crear una nueva instancia de MetodoPago
+        db.session.add(data)
+        db.session.commit()
+        return jsonify(metodo_pago_schema.dump(data)), 201  # Devolver el nuevo método creado
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Actualizar un método de pago existente
 @metodo_pago_bp.route('/metodos_pago/<int:id>', methods=['PUT'])
@@ -58,6 +59,7 @@ def update_metodo_pago(id):
     try:
         metodo_pago = MetodoPago.query.get_or_404(id)  # Buscar el método de pago por ID
         data = metodo_pago_schema.load(request.get_json(), partial=True)  # Cargar los nuevos datos
+        
         for key in request.json:
             setattr(metodo_pago, key, getattr(data, key))  # Actualizar los campos del método de pago
         db.session.commit()

@@ -1,8 +1,10 @@
+from ..utils.uploader import subir_imagen
 from ..utils.IdCategoriaUtils import categoria_id
 from ..utils.IdMarcaUtils import marca_id
 from flask import Blueprint, jsonify, request
 from app import db
 from ..models.producto_model import Producto  # Asegúrate de importar el modelo correcto
+from ..models.imagen_producto_model import ImagenProducto  # Asegúrate de importar el modelo correcto
 from ..schemas.producto_schema import ProductoSchema
 from flask_jwt_extended import jwt_required
 from flask_cors import cross_origin
@@ -56,20 +58,31 @@ def get_producto_por_nombre(nombre):
 @cross_origin()
 def create_producto():
     try:
+        archivo = request.files.get("imagen") 
         data = request.get_json()
-        # Validar que los campos requeridos estén presentes
-        # if not all(key in data for key in ("nombre", "stock", "precio", "descripcion", "categoria_nombre", "marca_nombre")):
-        #     return jsonify({"error": "Faltan campos requeridos"}), 400
-
-        # Crear el nuevo producto con los datos recibidos, incluyendo los nombres de la categoría y la marca
+        
+    
         data = marca_id(data)
         data = categoria_id(data)
         producto = Producto_schema.load(data)  # Esto ahora convierte los nombres en ids
 
         db.session.add(producto)  # Agregar el producto a la base de datos
+        
+        db.session.flush()  # consigue el ID sin hacer commit
+
+        if archivo:
+            url = subir_imagen(archivo)
+            nueva_imagen = ImagenProducto(url=url, producto_id=producto.id)
+            db.session.add(nueva_imagen)
+            imagen_url = url
+        
         db.session.commit()  # Confirmar la transacción
         nuevo_producto = Producto_schema.dump(producto)
-        print("Hola")
+        
+        if imagen_url:
+            nuevo_producto['imagen_url'] = imagen_url
+        
+        # print("Hola")
         return jsonify(nuevo_producto), 201
     except Exception as e:
         return jsonify({"error": f"Error al crear el producto: {str(e)}"}), 400
@@ -81,18 +94,30 @@ def create_producto():
 def update_producto(id):
     try:
         producto = Producto.query.get_or_404(id)
-
+        archivo = request.files.get("imagen")
+        
         data = request.get_json()
         
         data = marca_id(data)
         data = categoria_id(data)
 
-        data = Producto_schema.load(request.get_json(), partial=True)
+        data = Producto_schema.load(data, partial=True)
         for key in request.json:
             setattr(producto, key, getattr(data, key))
+            
+        if archivo:
+            url = subir_imagen(archivo)
+            nueva_imagen = ImagenProducto(url=url, producto_id=producto.id)
+            db.session.add(nueva_imagen)
+            imagen_url = url
 
         db.session.commit()
-        return jsonify(Producto_schema.dump(producto)), 200
+        
+        respuesta_producto = Producto_schema.dump(producto)
+        if imagen_url:
+            respuesta_producto['imagen_url'] = imagen_url
+            
+        return jsonify(respuesta_producto), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Error al actualizar el producto con id {id}: {str(e)}"}), 500
