@@ -41,11 +41,20 @@ def get_productos():
 @cross_origin()
 def get_producto(id):
     try:
-        producto = Producto.query.get_or_404(id)  # Obtener el producto por ID
-        return jsonify(Producto_schema.dump(producto))
+        producto = Producto.query.get_or_404(id)
+
+        # Obtener la primera imagen, si existe
+        imagen = producto.imagenes[0] if producto.imagenes else None
+
+        producto_data = Producto_schema.dump(producto)
+        producto_data['imagen_url'] = imagen.image_url if imagen else None
+
+        return jsonify(producto_data), 200
+
     except Exception as e:
         return jsonify({"error": f"Error al obtener el producto con id {id}: {str(e)}"}), 500
-
+    
+    
 @producto_bp.route('/productos/<string:nombre>', methods=['GET'])
 @jwt_required()
 @cross_origin()
@@ -55,11 +64,20 @@ def get_producto_por_nombre(nombre):
         productos = Producto.query.filter(Producto.nombre.ilike(f"%{nombre}%")).all()
         
         if not productos:
-            return jsonify({"error": f"No se encontraron productoes con nombre que contenga '{nombre}'"}), 404
-        
-        return jsonify(Productos_schema.dump(productos))
+            return jsonify({"error": f"No se encontraron productos con nombre que contenga '{nombre}'"}), 404
+
+        resultado = []
+        for prod in productos:
+            imagen = prod.imagenes[0] if prod.imagenes else None
+            producto_data = Producto_schema.dump(prod)
+            producto_data['imagen_url'] = imagen.image_url if imagen else None
+            resultado.append(producto_data)
+
+        return jsonify(resultado), 200
+
     except Exception as e:
-        return jsonify({"error": f"Error al obtener productoes con nombre que contenga '{nombre}': {str(e)}"}), 500
+        return jsonify({"error": f"Error al obtener productos con nombre que contenga '{nombre}': {str(e)}"}), 500
+
 
 @producto_bp.route('/productos', methods=['POST'])
 @jwt_required()

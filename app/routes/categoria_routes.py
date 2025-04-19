@@ -67,8 +67,8 @@ def add_categoria():
         
         db.session.flush()  # consigue el ID sin hacer commit
 
-        
-        
+
+
         db.session.commit()
         return jsonify(categoria_schema.dump(data)), 201  # Devolver la categoría creada
     except Exception as e:
