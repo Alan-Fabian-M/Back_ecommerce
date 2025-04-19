@@ -87,14 +87,9 @@ def create_producto():
                 )
                 db.session.add(nueva_imagen)
 
-                if i == 0:
-                    imagen_url = url  # guardar la URL principal
 
         db.session.commit()
         nuevo_producto = Producto_schema.dump(producto)
-
-        if imagen_url:
-            nuevo_producto['imagen_url'] = imagen_url
 
         return jsonify(nuevo_producto), 201
 
