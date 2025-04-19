@@ -15,3 +15,4 @@ class Producto(db.Model):
     
     categoria = db.relationship('Categoria', backref='productos')
     marca = db.relationship('Marca', backref='productos')
+    imagenes = db.relationship('ImagenProducto', backref='producto', lazy=True)

@@ -14,18 +14,27 @@ Producto_schema = ProductoSchema(session=db.session)
 Productos_schema = ProductoSchema(many=True)
 
 # Función para serializar un producto
-
-# Obtener todos los productos
 @producto_bp.route('/productos', methods=['GET'])
-@jwt_required()
 @cross_origin()
 def get_productos():
     try:
-        productos = Producto.query.all()  # Obtener todos los productos
-        return jsonify(Productos_schema.dump(productos))
-    except Exception as e:
-        return jsonify({"error": f"Error al obtener los productos: {str(e)}"}), 500
+        productos = Producto.query.all()
+        resultado = []
 
+        for prod in productos:
+            # Si hay imágenes, tomar la primera. Si no, None.
+            imagen = prod.imagenes[0] if prod.imagenes else None
+
+            producto_data = Producto_schema.dump(prod)
+            producto_data['imagen_url'] = imagen.image_url if imagen else None
+
+            resultado.append(producto_data)
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener los productos: {str(e)}"}), 400
+    
 # Obtener un producto específico por ID
 @producto_bp.route('/productos/<int:id>', methods=['GET'])
 @jwt_required()
@@ -52,40 +61,47 @@ def get_producto_por_nombre(nombre):
     except Exception as e:
         return jsonify({"error": f"Error al obtener productoes con nombre que contenga '{nombre}': {str(e)}"}), 500
 
-
 @producto_bp.route('/productos', methods=['POST'])
 @jwt_required()
 @cross_origin()
 def create_producto():
     try:
-        archivo = request.files.get("imagen") 
         data = request.form.to_dict()
-        
-    
+        imagenes = request.files.getlist('imagenes')
+
         data = marca_id(data)
         data = categoria_id(data)
-        producto = Producto_schema.load(data)  # Esto ahora convierte los nombres en ids
+        producto = Producto_schema.load(data)
 
-        db.session.add(producto)  # Agregar el producto a la base de datos
-        
-        db.session.flush()  # consigue el ID sin hacer commit
+        db.session.add(producto)
+        db.session.flush()  # Obtener ID sin hacer commit
 
-        if archivo:
-            url = subir_imagen(archivo)
-            nueva_imagen = ImagenProducto(url=url, producto_id=producto.id)
-            db.session.add(nueva_imagen)
-            imagen_url = url
-        
-        db.session.commit()  # Confirmar la transacción
+        imagen_url = None  # Inicializar
+
+        for i, archivo in enumerate(imagenes):
+            if archivo and archivo.filename != '':
+                url = subir_imagen(archivo)
+                nueva_imagen = ImagenProducto(
+                    image_url=url,  # ← corregido: usar image_url, no url
+                    producto_id=producto.id,
+                    principal=(i == 0)  # solo la primera es principal
+                )
+                db.session.add(nueva_imagen)
+
+                if i == 0:
+                    imagen_url = url  # guardar la URL principal
+
+        db.session.commit()
         nuevo_producto = Producto_schema.dump(producto)
-        
+
         if imagen_url:
             nuevo_producto['imagen_url'] = imagen_url
-        
-        # print("Hola")
+
         return jsonify(nuevo_producto), 201
+
     except Exception as e:
         return jsonify({"error": f"Error al crear el producto: {str(e)}"}), 400
+
 
 # Actualizar un producto existente
 @producto_bp.route('/productos/<int:id>', methods=['PUT'])
