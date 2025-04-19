@@ -85,26 +85,6 @@ def get_usuario(id):
     except Exception as e:
         return jsonify({"error": f"Error al obtener el usuario con id {id}: {str(e)}"}), 500
 
-# @usuario_bp.route('/usuarios', methods=['POST'])
-# def add_usuario():
-#     try:
-#         # Verifica que los campos obligatorios estén presentes
-#         # data = request.json
-#         # if not all(key in data for key in ("nombre", "email", "rol_id")):
-#         #     return jsonify({"error": "Los campos 'nombre', 'email' y 'rol_id' son obligatorios"}), 400
-        
-#         # Deserializa los datos
-#         # nuevo_usuario = usuario_schema.load(data)
-#         # db.session.add(nuevo_usuario)
-#         # db.session.commit()
-#         # return jsonify(usuario_to_dict(nuevo_usuario)), 201  # Devuelve el usuario serializado
-    
-#         nuevo_usuario = usuario_schema.load(request.json)  # Ya es una instancia de usuario
-#         db.session.add(nuevo_usuario)
-#         db.session.commit()
-#         return jsonify(usuario_schema.dump(nuevo_usuario)), 201 
-#     except Exception as e:
-#         return jsonify({"error": f"Error al crear el usuario: {str(e)}"}), 500
 
 @usuario_bp.route('/usuarios', methods=['POST'])
 # @jwt_required()
@@ -172,6 +152,7 @@ def delete_usuario(id):
     except Exception as e:
         return jsonify({"error": f"Error al eliminar el usuario con id {id}: {str(e)}"}), 500
     
+
     #Validar Correo 
 @usuario_bp.route('/usuarios/validar-correo', methods=['POST'])
 @cross_origin()

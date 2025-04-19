@@ -12,6 +12,7 @@ cliente_cupons_schema = ClienteCuponSchema(many=True)
 def get_cliente_cupons():
     try:
         cliente_cupons = ClienteCupon.query.all()
+        print("Debug: cliente_cupons =>", cliente_cupons)
         return jsonify(cliente_cupons_schema.dump(cliente_cupons))  # Usamos dump() para convertir a JSON
     except Exception as e:
         return jsonify({"error": str(e)}), 500

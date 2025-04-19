@@ -31,6 +31,22 @@ def get_permiso(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@permiso_bp.route('/permisos/<string:nombre>', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_permiso_por_nombre(nombre):
+    try:
+        # Búsqueda parcial, no case-sensitive
+        permisos = Permiso.query.filter(Permiso.nombre.ilike(f"%{nombre}%")).all()
+        
+        if not permisos:
+            return jsonify({"error": f"No se encontraron permisoes con nombre que contenga '{nombre}'"}), 404
+        
+        return jsonify(permisos_schema.dump(permisos))
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener permisoes con nombre que contenga '{nombre}': {str(e)}"}), 500
+
+
 # Crear un nuevo permiso
 @permiso_bp.route('/permisos', methods=['POST'])
 @jwt_required()

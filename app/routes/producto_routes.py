@@ -41,21 +41,21 @@ def get_producto(id):
     except Exception as e:
         return jsonify({"error": f"Error al obtener el producto con id {id}: {str(e)}"}), 500
 
-# Crear un nuevo producto
-# @producto_bp.route('/productos', methods=['POST'])
-# def create_producto():
-#     try:
-#         data = request.json
-#         # Validar que los campos requeridos estén presentes
-#         if not all(key in data for key in ("nombre", "stock", "precio", "descripcion")):
-#             return jsonify({"error": "Faltan campos requeridos"}), 400
+@producto_bp.route('/productos/<string:nombre>', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_producto_por_nombre(nombre):
+    try:
+        # Búsqueda parcial, no case-sensitive
+        productos = Producto.query.filter(Producto.nombre.ilike(f"%{nombre}%")).all()
+        
+        if not productos:
+            return jsonify({"error": f"No se encontraron productoes con nombre que contenga '{nombre}'"}), 404
+        
+        return jsonify(Productos_schema.dump(productos))
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener productoes con nombre que contenga '{nombre}': {str(e)}"}), 500
 
-#         producto = Producto(**data)  # Crear el nuevo producto con los datos recibidos
-#         db.session.add(producto)  # Agregar el producto a la base de datos
-#         db.session.commit()  # Confirmar la transacción
-#         return jsonify({"mensaje": "Producto creado correctamente", "producto": producto_to_dict(producto)}), 201
-#     except Exception as e:
-#         return jsonify({"error": f"Error al crear el producto: {str(e)}"}), 400
 
 @producto_bp.route('/productos', methods=['POST'])
 @jwt_required()

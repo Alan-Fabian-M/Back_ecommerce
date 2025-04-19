@@ -2,8 +2,10 @@ from flask import Blueprint, request, jsonify
 from ..models.movimiento_model import Movimiento
 from ..schemas.movimiento_schema import MovimientoSchema
 from app import db  # Asegúrate de importar db desde tu archivo de configuración
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required,get_jwt_identity
 from flask_cors import cross_origin
+from ..utils.RegisterBitacoraUtils import registrar_en_bitacora
+from datetime import datetime
 
 movimiento_bp = Blueprint('movimiento_bp', __name__)
 movimiento_schema = MovimientoSchema(session=db.session)
@@ -31,18 +33,34 @@ def get_movimiento(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Crear un nuevo movimiento
+
+    
 @movimiento_bp.route('/movimientos', methods=['POST'])
 @jwt_required()
 @cross_origin()
 def add_movimiento():
     try:
-        data = movimiento_schema.load(request.json)  # Cargar los datos del cuerpo de la solicitud
-        # nuevo_movimiento = Movimiento(**data)  # Crear una nueva instancia de Movimiento
-        db.session.add(data)
+        data = request.get_json()
+        # Obtener el ID del usuario del token JWT
+        usuario_id = get_jwt_identity()
+        # Agregar el usuario_codigo a los datos antes de cargar al esquema
+        data['usuario_codigo'] = usuario_id
+        # Cargar los datos del cuerpo de la solicitud, incluyendo el usuario_codigo
+        data["fecha"] = datetime.now().date().isoformat()
+        nuevo_movimiento = movimiento_schema.load(data)
+        # Crear una nueva instancia de Movimiento con los datos cargados
+        
+        
+        
+        db.session.add(nuevo_movimiento)
         db.session.commit()
-        return jsonify(movimiento_schema.dump(data)), 201  # Devolver el nuevo movimiento creado
+        # Serializar el nuevo movimiento para la respuesta
+        movimiento = movimiento_schema.dump(nuevo_movimiento)
+        # Registrar la acción en la bitácora
+        registrar_en_bitacora(usuario_id, movimiento["tipomovimiento"], "realizando movimiento")
+        return jsonify(movimiento), 201  # Devolver el nuevo movimiento creado
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 # Actualizar un movimiento existente
@@ -55,8 +73,12 @@ def update_movimiento(id):
         data = movimiento_schema.load(request.json)  # Cargar los nuevos datos
         for key, value in data.items():
             setattr(movimiento, key, value)  # Actualizar los campos del movimiento
+        
+        usuario_id = get_jwt_identity()
+        movimiento = movimiento_schema.dump(data)
+        registrar_en_bitacora(usuario_id, "actualizar" , "actualizando movimiento")
         db.session.commit()
-        return jsonify(movimiento_schema.dump(movimiento))  # Devolver el movimiento actualizado
+        return jsonify(movimiento)  # Devolver el movimiento actualizado
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -66,9 +88,12 @@ def update_movimiento(id):
 @cross_origin()
 def delete_movimiento(id):
     try:
-        movimiento = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
+        data = Movimiento.query.get_or_404(id)  # Buscar el movimiento por ID
         db.session.delete(movimiento)  # Eliminar el movimiento
+        usuario_id = get_jwt_identity()
+        movimiento = movimiento_schema.dump(data)
+        registrar_en_bitacora(usuario_id, "eliminar" , "elimando movimiento")
         db.session.commit()
-        return jsonify({'message': 'Movimiento eliminado', 'data': movimiento_schema.dump(movimiento)}), 200  # Devolver el movimiento eliminado
+        return jsonify({'message': 'Movimiento eliminado', 'data': movimiento}), 200  # Devolver el movimiento eliminado
     except Exception as e:
         return jsonify({"error": str(e)}), 500

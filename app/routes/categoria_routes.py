@@ -31,6 +31,23 @@ def get_categoria(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@categoria_bp.route('/categorias/<string:nombre>', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_categoria_por_nombre(nombre):
+    try:
+        # Búsqueda parcial, no case-sensitive
+        categorias = Categoria.query.filter(Categoria.nombre.ilike(f"%{nombre}%")).all()
+        
+        if not categorias:
+            return jsonify({"error": f"No se encontraron categoriaes con nombre que contenga '{nombre}'"}), 404
+        
+        return jsonify(categorias_schema.dump(categorias))
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener categoriaes con nombre que contenga '{nombre}': {str(e)}"}), 500
+
+
+
 # Crear una nueva categoría
 @categoria_bp.route('/categorias', methods=['POST'])
 @jwt_required()

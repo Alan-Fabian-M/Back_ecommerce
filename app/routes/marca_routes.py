@@ -37,7 +37,7 @@ def get_marca(id):
 def get_marca_por_nombre(nombre):
     try:
         # Búsqueda parcial, no case-sensitive
-        marcas = Marca.query.filter(marca.nombre.ilike(f"%{nombre}%")).all()
+        marcas = Marca.query.filter(Marca.nombre.ilike(f"%{nombre}%")).all()
         
         if not marcas:
             return jsonify({"error": f"No se encontraron marcas con nombre que contenga '{nombre}'"}), 404

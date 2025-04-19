@@ -39,7 +39,6 @@ def get_rol(id):
     except Exception as e:
         return jsonify({"error": f"Error al obtener el rol con id {id}: {str(e)}"}), 500
     
-    
 
 @rol_bp.route('/roles', methods=['POST'])
 @jwt_required()

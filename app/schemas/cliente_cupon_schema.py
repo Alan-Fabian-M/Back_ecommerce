@@ -5,3 +5,4 @@ class ClienteCuponSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = ClienteCupon
         load_instance = True
+        include_fk = True

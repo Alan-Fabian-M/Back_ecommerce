@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from ..models.cliente_model import Cliente
 from ..schemas.cliente_schema import ClienteSchema
 from app import db
+from werkzeug.security import generate_password_hash
+from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 
 cliente_bp = Blueprint('cliente_bp', __name__)
 cliente_schema = ClienteSchema(session=db.session)
@@ -24,6 +27,20 @@ def get_cliente(id):
         return jsonify(cliente_schema.dump(cliente))  # Usamos dump() en lugar de jsonify()
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@cliente_bp.route('/clientes/<string:nombre>', methods=['GET'])
+def get_cliente_por_nombre(nombre):
+    try:
+        # Búsqueda parcial, no case-sensitive
+        clientes = Cliente.query.filter(Cliente.nombre.ilike(f"%{nombre}%")).all()
+        
+        if not clientes:
+            return jsonify({"error": f"No se encontraron clientes con nombre que contenga '{nombre}'"}), 404
+        
+        return jsonify(clientes_schema.dump(clientes))
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener clientes con nombre que contenga '{nombre}': {str(e)}"}), 500
+
 
 # Crear un nuevo cliente
 @cliente_bp.route('/clientes', methods=['POST'])

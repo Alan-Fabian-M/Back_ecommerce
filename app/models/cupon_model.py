@@ -6,4 +6,7 @@ class Cupon(db.Model):
     nombre = db.Column(db.String(100))
     descripcion = db.Column(db.Text)
     monto = db.Column(db.Numeric(10, 2))
-    fecha = db.Column(db.Date)
+    fecha_Inicio = db.Column(db.Date)
+    fecha_fin = db.Column(db.Date)
+    estado = db.Column(db.String(50))
+    

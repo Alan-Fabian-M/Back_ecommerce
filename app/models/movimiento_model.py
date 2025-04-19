@@ -9,3 +9,6 @@ class Movimiento(db.Model):
     descripcion = db.Column(db.Text)
     producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'))
     usuario_codigo = db.Column(db.Integer, db.ForeignKey('usuario.codigo'))
+    
+    usuario = db.relationship("Usuario", backref='movimientos')
+    producto = db.relationship("Producto", backref='movimientos')

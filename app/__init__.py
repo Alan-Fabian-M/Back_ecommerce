@@ -8,6 +8,8 @@ from flask_cors import CORS
 
 db = SQLAlchemy()
 
+
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -30,6 +32,12 @@ def create_app():
     from .routes.usuario_routes import usuario_bp
     from .routes.rol_permiso_routes import rol_permiso_bp
     from .routes.auth_routes import auth_bp
+    from .routes.bitacora_routes import bitacora_bp
+    from .routes.resena_routes import resena_bp
+    from .routes.metodo_pago_routes import metodo_pago_bp
+    from .routes.cupon_routes import cupon_bp
+    from .routes.carrito_routes import carrito_bp
+    from .routes.cliente_cupon_routes import cliente_cupon_bp
 
     # Registrar los blueprints
     app.register_blueprint(cliente_bp)
@@ -43,9 +51,17 @@ def create_app():
     app.register_blueprint(usuario_bp)
     app.register_blueprint(rol_permiso_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(bitacora_bp)
+    app.register_blueprint(resena_bp)
+    app.register_blueprint(metodo_pago_bp)
+    app.register_blueprint(cupon_bp)
+    app.register_blueprint(carrito_bp)
+    app.register_blueprint(cliente_cupon_bp)
 
     # print("Rutas registradas:")
     # for rule in app.url_map.iter_rules():
     #     print(rule)
+    
+    
     
     return app

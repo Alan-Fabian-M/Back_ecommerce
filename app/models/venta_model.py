@@ -9,3 +9,8 @@ class Venta(db.Model):
     estado = db.Column(db.String(50))
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'))
     metodo_pago_id = db.Column(db.Integer, db.ForeignKey('metodo_pago.id'))
+    cupon_id = db.Column(db.Integer, db.ForeignKey('cupon.id'))
+    
+    cliente = db.relationship("Cliente", backref='ventas')
+    cupon = db.relationship("Cupon", backref='ventas')
+    metodo_pago = db.relationship("MetodoPago", backref='ventas')

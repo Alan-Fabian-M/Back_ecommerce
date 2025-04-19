@@ -1,15 +1,15 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from werkzeug.security import check_password_hash
-from app import db
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from ..models.usuario_model import Usuario
+from ..models.cliente_model import Cliente
 from ..schemas.usuario_schema import UsuarioSchema
+from ..utils.RegisterBitacoraUtils import registrar_en_bitacora
+from werkzeug.security import check_password_hash
 
 auth_bp = Blueprint('auth_bp', __name__)
 usuario_schema = UsuarioSchema()
 
 @auth_bp.route('/login', methods=['POST'])
-
 def login():
     data = request.get_json()
     gmail = data.get("gmail")
@@ -18,11 +18,12 @@ def login():
     if not gmail or not contrasena:
         return jsonify({"error": "Gmail y contraseña son requeridos"}), 400
 
-    usuario = Usuario.query.filter_by(gmail=gmail).first()
+    usuario = Usuario.query.filter_by(gmail=gmail).first() or Cliente.query.filter_by(gmail=gmail).first() 
 
-    # ✅ Comparación correcta con contraseña hasheada
     if not usuario or not check_password_hash(usuario.contrasena, contrasena):
         return jsonify({"error": "Credenciales inválidas"}), 401
+
+    registrar_en_bitacora(usuario.codigo, "login", "ingresando al sistema")
 
     # Convertir a string el codigo del usuario antes de pasarlo al token
     access_token = create_access_token(identity=str(usuario.codigo))
@@ -42,6 +43,8 @@ def verificar_token():
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    # Aquí podrías realizar algún manejo adicional si quieres invalidar el token en el backend
-    # Pero usualmente solo se elimina el token en el frontend
-    return jsonify({"mensaje": "Sesión cerrada correctamente"}), 200
+    response = jsonify({"msg": "Logout successful"})
+    usuario_id = get_jwt_identity()
+    registrar_en_bitacora(usuario_id, "logout", "saliendo del sistema")
+    unset_jwt_cookies(response)
+    return response
