@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from ..models.cupon_model import Cupon
 from ..schemas.cupon_schema import CuponSchema
 from app import db
+from datetime import datetime, timedelta
 
 cupon_bp = Blueprint('cupon_bp', __name__)
 cupon_schema = CuponSchema(session=db.session)
@@ -30,6 +31,16 @@ def get_cupon(id):
 def add_cupon():
     try:
         data = cupon_schema.load(request.json)  # Cargar y validar los datos con Marshmallow
+
+        # Obtener la fecha actual (sin la hora) para fecha_inicio
+        fecha_inicio = datetime.now().date()
+
+        # Asignar la fecha de inicio como la fecha actual
+        data.fecha_inicio = fecha_inicio
+
+        # Calcular fecha_fin como 30 días después de fecha_inicio
+        fecha_fin = fecha_inicio + timedelta(days=30)
+        data.fecha_fin = fecha_fin
 
         db.session.add(data)
         db.session.commit()

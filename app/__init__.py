@@ -12,7 +12,7 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    # CORS(app)
+    CORS(app)
     app.config.from_object(Config)
     
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:4200"}})
