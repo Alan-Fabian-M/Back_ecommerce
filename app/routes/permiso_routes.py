@@ -69,13 +69,16 @@ def add_permiso():
 @cross_origin()
 def update_permiso(id):
     try:
-        permiso = Permiso.query.get_or_404(id)  # Buscar el permiso por ID
-        data = permiso_schema.load(request.json)  # Cargar los nuevos datos
-        for key, value in data.items():
-            setattr(permiso, key, value)  # Actualizar los campos del permiso
+        permiso = Permiso.query.get_or_404(id)
+
+        data = permiso_schema.load(request.get_json(), partial=True)
+        for key in request.json:
+            setattr(permiso, key, getattr(data, key))
+
         db.session.commit()
-        return jsonify(permiso_schema.dump(permiso))  # Devolver el permiso actualizado
+        return jsonify(permiso_schema.dump(permiso)), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 # Eliminar un permiso

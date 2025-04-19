@@ -127,6 +127,8 @@ def update_usuario(id):
         if not any(data.values()):
             return jsonify({"error": "Debe proporcionar al menos un campo para actualizar"}), 400
 
+        
+
         # Actualizar campos uno por uno desde el dict
         for key, value in data.items():
             if hasattr(usuario, key):

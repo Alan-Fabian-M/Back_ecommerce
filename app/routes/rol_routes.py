@@ -10,12 +10,6 @@ rol_schema = RolSchema(session=db.session)
 roles_schema = RolSchema(many=True)
 
 # Función para serializar un rol
-def rol_to_dict(rol):
-    return {
-        "id": rol.id,
-        "nombre": rol.nombre,  # Asumiendo que Rol tiene un campo 'nombre'
-        "descripcion": rol.descripcion  # Asumiendo que Rol tiene un campo 'descripcion'
-    }
 
 @rol_bp.route('/roles', methods=['GET'])
 @jwt_required()
@@ -53,7 +47,7 @@ def add_rol():
         nuevo_rol = rol_schema.load(data)  # Deserialize data into Rol instance
         db.session.add(nuevo_rol)
         db.session.commit()
-        return jsonify(rol_to_dict(nuevo_rol)), 201  # Devuelve el objeto serializado
+        return jsonify(rol_schema.dump(nuevo_rol)), 201  # Devuelve el objeto serializado
     except Exception as e:
         return jsonify({"error": f"Error al crear el rol: {str(e)}"}), 500
 
@@ -63,18 +57,17 @@ def add_rol():
 def update_rol(id):
     try:
         rol = Rol.query.get_or_404(id)
-        data = request.json
-        if not any(data.values()):  # Verifica que al menos un campo sea proporcionado
-            return jsonify({"error": "Debe proporcionar al menos un campo para actualizar"}), 400
-        
-        # Carga los datos, permitiendo campos opcionales
-        updated_data = rol_schema.load(data, partial=True)
-        for key, value in updated_data.items():
-            setattr(rol, key, value)  # Actualiza los atributos
+
+        data = rol_schema.load(request.get_json(), partial=True)
+        for key in request.json:
+            setattr(rol, key, getattr(data, key))
+
         db.session.commit()
-        return jsonify(rol_to_dict(rol))  # Devuelve el objeto actualizado serializado
+        return jsonify(rol_schema.dump(rol)), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": f"Error al actualizar el rol con id {id}: {str(e)}"}), 500
+
 
 @rol_bp.route('/roles/<int:id>', methods=['DELETE'])
 @jwt_required()
