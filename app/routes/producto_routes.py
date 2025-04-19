@@ -84,7 +84,6 @@ def create_producto():
                 nueva_imagen = ImagenProducto(
                     image_url=url,  # ← corregido: usar image_url, no url
                     producto_id=producto.id,
-                    principal=(i == 0)  # solo la primera es principal
                 )
                 db.session.add(nueva_imagen)
 
