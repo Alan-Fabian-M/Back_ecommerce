@@ -59,7 +59,7 @@ def get_producto_por_nombre(nombre):
 def create_producto():
     try:
         archivo = request.files.get("imagen") 
-        data = request.get_json()
+        data = request.form.to_dict()
         
     
         data = marca_id(data)
@@ -96,13 +96,13 @@ def update_producto(id):
         producto = Producto.query.get_or_404(id)
         archivo = request.files.get("imagen")
         
-        data = request.get_json()
+        data = request.form.to_dict()
         
         data = marca_id(data)
         data = categoria_id(data)
 
         data = Producto_schema.load(data, partial=True)
-        for key in request.json:
+        for key in request.form.to_dict():
             setattr(producto, key, getattr(data, key))
             
         if archivo:
