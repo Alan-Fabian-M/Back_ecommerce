@@ -1,9 +1,8 @@
 import cloudinary
-from ..config import Config  # Importa tu configuración
 
 cloudinary.config(
-    cloud_name=Config.CLOUDINARY_CLOUD_NAME,
-    api_key=Config.CLOUDINARY_API_KEY,
-    api_secret=Config.CLOUDINARY_API_SECRET,
+    cloud_name="dozywphod",
+    api_key="441626374645742",
+    api_secret="qJAFgRUbyHSVc_SitfIXj0ELXFI",
     secure=True
 )
