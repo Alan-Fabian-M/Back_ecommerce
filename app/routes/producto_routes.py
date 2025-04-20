@@ -123,9 +123,8 @@ def create_producto():
 def update_producto(id):
     try:
         producto = Producto.query.get_or_404(id)
-        archivo = request.files.get("imagen")
-        imagen_url = None
-        
+
+        # Actualización de campos del producto
         data = request.form.to_dict()
         data = marca_id(data)
         data = categoria_id(data)
@@ -133,24 +132,64 @@ def update_producto(id):
 
         for key in request.form.to_dict():
             setattr(producto, key, getattr(data, key))
-            
-        if archivo:
-            url = subir_imagen(archivo)
-            nueva_imagen = ImagenProducto(url=url, producto_id=producto.id)
-            db.session.add(nueva_imagen)
-            imagen_url = url
+
+        # Eliminar imágenes si se indican
+        imagenes_a_eliminar = request.form.getlist('imagenes_a_eliminar')  # Ej: ['12', '15']
+        for img_id_str in imagenes_a_eliminar:
+            try:
+                img_id = int(img_id_str)
+                imagen = ImagenProducto.query.filter_by(id=img_id, producto_id=producto.id).first()
+                if imagen:
+                    # Extraer public_id de Cloudinary
+                    from urllib.parse import urlparse
+                    import os
+                    parsed_url = urlparse(imagen.url)
+                    public_id = os.path.splitext(parsed_url.path.split('/')[-1])[0]
+                    folder = "/".join(parsed_url.path.split('/')[-2:-1])
+                    full_public_id = f"{folder}/{public_id}"
+
+                    # Eliminar en Cloudinary
+                    cloudinary.uploader.destroy(full_public_id)
+                    db.session.delete(imagen)
+            except ValueError:
+                continue
+
+        # Subir nuevas imágenes si las hay
+        nuevas_imagenes = request.files.getlist("imagen")
+        nuevas_urls = []
+        for i, img in enumerate(nuevas_imagenes):
+            result = cloudinary.uploader.upload(
+                img,
+                folder=f"productos/{producto.id}",
+                public_id=f"{producto.nombre.replace(' ', '')}_{len(producto.imagenes) + i}",
+                use_filename=True,
+                unique_filename=False,
+                overwrite=True
+            )
+            nueva_img = ImagenProducto(
+                producto_id=producto.id,
+                url=result.get("secure_url")
+            )
+            db.session.add(nueva_img)
+            nuevas_urls.append(nueva_img.url)
+
+            # Si no hay imagen principal, usar esta como tal
+            if i == 0 and not producto.url_imagen:
+                producto.url_imagen = nueva_img.url
 
         db.session.commit()
-        
+
         respuesta_producto = Producto_schema.dump(producto)
-        if imagen_url:
-            respuesta_producto['imagen_url'] = imagen_url
-            
+        if nuevas_urls:
+            respuesta_producto['nuevas_imagenes'] = nuevas_urls
+        if imagenes_a_eliminar:
+            respuesta_producto['imagenes_eliminadas'] = imagenes_a_eliminar
+
         return jsonify(respuesta_producto), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Error al actualizar el producto con id {id}: {str(e)}"}), 500
-
 
 # # Eliminar un producto
 # @producto_bp.route('/productos/<int:id>', methods=['DELETE'])

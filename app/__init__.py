@@ -49,6 +49,7 @@ def create_app():
     from .routes.cupon_routes import cupon_bp
     from .routes.carrito_routes import carrito_bp
     from .routes.cliente_cupon_routes import cliente_cupon_bp
+    from .routes.imagen_producto_routes import imagen_producto_bp
 
     # Registrar los blueprints
     app.register_blueprint(cliente_bp)
@@ -68,6 +69,7 @@ def create_app():
     app.register_blueprint(cupon_bp)
     app.register_blueprint(carrito_bp)
     app.register_blueprint(cliente_cupon_bp)
+    app.register_blueprint(imagen_producto_bp)
 
     # print("Rutas registradas:")
     # for rule in app.url_map.iter_rules():
