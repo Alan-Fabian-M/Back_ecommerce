@@ -11,6 +11,7 @@ class Config:
     CLOUDINARY_API_SECRET = "qJAFgRUbyHSVc_SitfIXj0ELXFI"
     
     # SQLALCHEMY_DATABASE_URI = "postgresql://postgres:alan123@localhost:5432/pruebas"
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

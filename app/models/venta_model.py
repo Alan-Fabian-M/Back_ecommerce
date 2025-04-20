@@ -14,3 +14,5 @@ class Venta(db.Model):
     cliente = db.relationship("Cliente", backref='ventas')
     cupon = db.relationship("Cupon", backref='ventas')
     metodo_pago = db.relationship("MetodoPago", backref='ventas')
+    carritos = db.relationship('Carrito', back_populates='venta',cascade='all, delete-orphan',passive_deletes=True)
+    

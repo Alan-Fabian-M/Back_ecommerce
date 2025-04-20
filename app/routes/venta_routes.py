@@ -1,4 +1,8 @@
 from datetime import datetime
+
+from ..models.cupon_model import Cupon
+
+from ..models.producto_model import Producto
 from ..utils.IdMetodoPagoUtils import metodo_pago_id
 from ..utils.IdUsuarioUtils import cliente_id
 from ..utils.IdCuponUtils import cupon_id
@@ -43,14 +47,13 @@ def add_venta():
     try:
         data = request.get_json()
 
-        # if not all(k in data for k in ("cliente_id", "metodo_pago_id", "fecha", "total")):
-        #     return jsonify({"error": "Faltan campos requeridos: cliente_id, metodo_pago_id, fecha, total"}), 400
-
         data = cliente_id(data)
         data = metodo_pago_id(data)
         data = cupon_id(data)
         
         data["fecha"] = datetime.now().date().isoformat()
+        
+        
 
         nueva_venta = venta_schema.load(data)
         db.session.add(nueva_venta)
@@ -74,15 +77,45 @@ def update_venta(id):
         data = cliente_id(data)
         data = metodo_pago_id(data)
         data = cupon_id(data)
-        
 
         data = venta_schema.load(data, partial=True)
-        
-        
-        
-        
+
+        # Verificamos si se va a cambiar el estado a "confirmado"
+        estado_anterior = venta.estado
+        nuevo_estado = getattr(data, 'estado', estado_anterior)
+
         for key in request.json:
             setattr(venta, key, getattr(data, key))
+
+        
+        cupon_aplicado = None
+        descuento = 0
+
+        if data.get("cupon_id"):
+            cupon_aplicado = Cupon.query.get(data["cupon_id"])
+            if not cupon_aplicado:
+                return jsonify({"error": "Cupon no válido"}), 400
+            descuento = float(cupon_aplicado.monto or 0)  # Asumimos que es porcentaje (por ejemplo, 10 = 10%)
+
+        # Suponemos que el total original ya está en el campo 'importe_total'
+        importe_total = float(data.get("importe_total", 0))
+        importe_total_desc = importe_total
+
+        if descuento > 0:
+            importe_total_desc = round(importe_total - descuento, 2)
+
+        data["importe_total_desc"] = importe_total_desc
+        
+
+        # Si el estado cambia a "confirmado", descontar stock
+        if estado_anterior != "confirmado" and nuevo_estado == "confirmado":
+            for carrito in venta.carritos:
+                producto = Producto.query.get(carrito.producto_id)
+                if producto and carrito.cantidad:
+                    if producto.stock >= carrito.cantidad:
+                        producto.stock -= carrito.cantidad
+                    else:
+                        raise Exception(f"Stock insuficiente para el producto '{producto.nombre}'.")
 
         db.session.commit()
         return jsonify(venta_schema.dump(venta)), 200
