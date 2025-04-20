@@ -71,6 +71,7 @@ def get_producto_por_nombre(nombre):
             imagen = prod.imagenes[0] if prod.imagenes else None
             producto_data = Producto_schema.dump(prod)
             producto_data['imagen_url'] = imagen.image_url if imagen else None
+            producto_data['imagen_id'] = imagen.id if imagen else None
             resultado.append(producto_data)
 
         return jsonify(resultado), 200
