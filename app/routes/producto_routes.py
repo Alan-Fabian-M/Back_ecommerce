@@ -22,12 +22,8 @@ def get_productos():
         resultado = []
 
         for prod in productos:
-            # Si hay imágenes, tomar la primera. Si no, None.
-            imagen = prod.imagenes[0] if prod.imagenes else None
-
             producto_data = Producto_schema.dump(prod)
-            producto_data['imagen_url'] = imagen.image_url if imagen else None
-
+            producto_data['imagenes'] = [{"id": img.id, "url": img.image_url} for img in prod.imagenes]
             resultado.append(producto_data)
 
         return jsonify(resultado), 200
@@ -43,11 +39,8 @@ def get_producto(id):
     try:
         producto = Producto.query.get_or_404(id)
 
-        # Obtener la primera imagen, si existe
-        imagen = producto.imagenes[0] if producto.imagenes else None
-
         producto_data = Producto_schema.dump(producto)
-        producto_data['imagen_url'] = imagen.image_url if imagen else None
+        producto_data['imagenes'] = [{"id": img.id, "url": img.url} for img in producto.imagenes]
 
         return jsonify(producto_data), 200
 
@@ -60,7 +53,6 @@ def get_producto(id):
 @cross_origin()
 def get_producto_por_nombre(nombre):
     try:
-        # Búsqueda parcial, no case-sensitive
         productos = Producto.query.filter(Producto.nombre.ilike(f"%{nombre}%")).all()
         
         if not productos:
@@ -68,10 +60,8 @@ def get_producto_por_nombre(nombre):
 
         resultado = []
         for prod in productos:
-            imagen = prod.imagenes[0] if prod.imagenes else None
             producto_data = Producto_schema.dump(prod)
-            producto_data['imagen_url'] = imagen.image_url if imagen else None
-            producto_data['imagen_id'] = imagen.id if imagen else None
+            producto_data['imagenes'] = [{"id": img.id, "url": img.url} for img in prod.imagenes]
             resultado.append(producto_data)
 
         return jsonify(resultado), 200
