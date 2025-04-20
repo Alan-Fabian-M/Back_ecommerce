@@ -1,3 +1,4 @@
+import cloudinary
 from ..utils.uploader import subir_imagen
 from ..utils.IdCategoriaUtils import categoria_id
 from ..utils.IdMarcaUtils import marca_id
@@ -144,28 +145,25 @@ def update_producto(id):
             except ValueError:
                 continue
 
+                
+        
         # Subir nuevas imágenes si las hay
-        nuevas_imagenes = request.files.getlist("imagen")
+        nuevas_imagenes = request.files.getlist("imagenes")
         nuevas_urls = []
-        for i, img in enumerate(nuevas_imagenes):
-            result = cloudinary.uploader.upload(
-                img,
-                folder=f"productos/{producto.id}",
-                public_id=f"{producto.nombre.replace(' ', '')}_{len(producto.imagenes) + i}",
-                use_filename=True,
-                unique_filename=False,
-                overwrite=True
-            )
-            nueva_img = ImagenProducto(
+        for i, archivo in enumerate(nuevas_imagenes):
+            print("Se esta subiendo")
+            url = subir_imagen(archivo)
+            nueva_imagen = ImagenProducto(
+                image_url=url,  # ← corregido: usar image_url, no url
                 producto_id=producto.id,
-                url=result.get("secure_url")
             )
-            db.session.add(nueva_img)
-            nuevas_urls.append(nueva_img.url)
+            
+            db.session.add(nueva_imagen)
+
 
             # Si no hay imagen principal, usar esta como tal
-            if i == 0 and not producto.url_imagen:
-                producto.url_imagen = nueva_img.url
+            # if i == 0 and not producto.url_imagen:
+            #     producto.url_imagen = nueva_img.url
 
         db.session.commit()
 
