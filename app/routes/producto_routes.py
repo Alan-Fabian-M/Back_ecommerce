@@ -40,7 +40,7 @@ def get_producto(id):
         producto = Producto.query.get_or_404(id)
 
         producto_data = Producto_schema.dump(producto)
-        producto_data['imagenes'] = [{"id": img.id, "url": img.url} for img in producto.imagenes]
+        producto_data['imagenes'] = [{"id": img.id, "url": img.image_url} for img in producto.imagenes]
 
         return jsonify(producto_data), 200
 
@@ -61,7 +61,7 @@ def get_producto_por_nombre(nombre):
         resultado = []
         for prod in productos:
             producto_data = Producto_schema.dump(prod)
-            producto_data['imagenes'] = [{"id": img.id, "url": img.url} for img in prod.imagenes]
+            producto_data['imagenes'] = [{"id": img.id, "url": img.image_url} for img in prod.imagenes]
             resultado.append(producto_data)
 
         return jsonify(resultado), 200
